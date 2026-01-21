@@ -2,7 +2,7 @@
 
 ## Hardward
 
-- Teensy 4.0/4.1 + Audio Shield
+- XIAO RP2040
 
 ## Covert to RAW
 
