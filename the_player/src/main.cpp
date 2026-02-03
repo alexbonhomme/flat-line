@@ -1,7 +1,7 @@
+#include <Arduino.h>
+
 #include "file_reader.h"
 #include "wav_player.h"
-
-// #define DEBUG
 
 volatile float volume = 1.0f;
 volatile float pitch = 1.0f; // Pitch multiplier (1.0 = normal, 0.5 = half speed, 2.0 = double speed)
