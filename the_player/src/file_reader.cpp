@@ -1,8 +1,9 @@
 #include "file_reader.h"
 
-#define SD_CS_PIN 0 // Adafruit microSD Card BFF (TX/GPIO0 on XIAO RP2040)
+// #define SD_CS_PIN 0
+#define SD_CS_PIN A2
+
 #define SD_FAT_TYPE 3
-// #define SD_CS_PIN A2 // Adafruit Audio BFF
 #define SPI_CLOCK SD_SCK_MHZ(50)
 #define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI, SPI_CLOCK)
 
