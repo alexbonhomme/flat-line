@@ -9,6 +9,7 @@ volatile float pitch = 1.0f; // Pitch multiplier (1.0 = normal, 0.5 = half speed
 WavPlayer wavPlayer;
 FileReader fileReader;
 
+#define VOLUME_POT_PIN A0
 #define PITCH_POT_PIN A1 // Analog pin for pitch potentiometer
 
 void setup()
@@ -52,8 +53,11 @@ void loop1()
     if (now - lastPotRead > 10)
     {
       int rawPitch = analogRead(PITCH_POT_PIN);
+      int rawVolume = analogRead(VOLUME_POT_PIN);
+
       noInterrupts();
       pitch = 0.5f + (rawPitch / 4095.0f) * 2.0f; // Range: 0.5x to 2.5x
+      volume = rawVolume / 4095.0f;               // Range: 0.0 (min) to 1.0 (max)
       interrupts();
       lastPotRead = now;
     }
@@ -61,8 +65,9 @@ void loop1()
     // Software-based pitch shifting: control sample reading rate based on pitch
     noInterrupts();
     float currentPitch = pitch;
+    float currentVolume = volume;
     interrupts();
 
-    wavPlayer.process(currentPitch, volume);
+    wavPlayer.process(currentPitch, currentVolume);
   }
 }
