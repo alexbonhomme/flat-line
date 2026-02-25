@@ -11,12 +11,6 @@ FileReader::FileReader() : dirOpen_(false), initialized_(false) {}
 
 bool FileReader::begin() {
 #if DEBUG
-  // debug output at 115200 baud
-  Serial.begin(115200);
-  while (!Serial)
-    delay(100);
-
-  // setup SD-card
   Serial.print("Initializing SD card...");
 #endif
 
