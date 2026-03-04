@@ -4,6 +4,9 @@
 #define pWS 7    // QT Py Audio BFF default LRCLOCK
 #define pDOUT A3 // QT Py Audio BFF default DATA
 
+// Control update function implemented in main.cpp (runs on core 0)
+extern void updateControls();
+
 WavPlayer::WavPlayer()
     : playing_(false),
       load_(false),
@@ -74,6 +77,10 @@ void WavPlayer::play(File file)
       playing_ = load_ = true;
       while (playing_)
       {
+        // Core 0: handle control updates (pots) at low rate while core 1
+        // handles the actual audio generation in loop1().
+        updateControls();
+
         if (load_ || (status == WAV_LOAD))
         {
           load_ = false;
