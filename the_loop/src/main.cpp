@@ -10,11 +10,13 @@ volatile float pitch = 1.0f;
 WavPlayer wavPlayer;
 FileReader fileReader;
 
-#define VOLUME_POT_PIN A0
-#define PITCH_POT_PIN A1
+#define PITCH_POT_PIN A0
+#define VOLUME_POT_PIN A1
+
+constexpr float ADC_MAX = 1023.0f;
 
 // Smoothed pot readings to avoid audio glitches (no zipper noise)
-ResponsiveAnalogRead pitchPot(PITCH_POT_PIN, true);   // true = sleep mode
+ResponsiveAnalogRead pitchPot(PITCH_POT_PIN, true);
 ResponsiveAnalogRead volumePot(VOLUME_POT_PIN, true);
 
 // read and smooth pots at control rate, update globals
@@ -29,12 +31,12 @@ void updateControls() {
     lastPotRead = now;
 
     if (pitchPot.hasChanged()) {
-      // Map smoothed 0–4095 to pitch (0.5x–2.0x) and volume (0.0–1.0)
-      pitch = 0.5f + (pitchPot.getValue() / 4095.0f) * 1.5f;
+      // Map smoothed 0–1023 to pitch (0.5x–2.0x) and volume (0.0–1.0)
+      pitch = 0.5f + (pitchPot.getValue() / ADC_MAX) * 1.5f;
     }
 
     if (volumePot.hasChanged()) {
-      volume = volumePot.getValue() / 4095.0f;
+      volume = volumePot.getValue() / ADC_MAX;
     }
   }
 }
@@ -48,9 +50,6 @@ void setup() {
   Serial.println("Starting...");
 #endif
 
-  // Ensure ADC uses 12-bit resolution so scaling with 4095.0f is correct
-  analogReadResolution(12);
-
   if (!fileReader.begin()) {
     return;
   }
@@ -58,9 +57,6 @@ void setup() {
 
 void setup1() {
   wavPlayer.begin();
-  // 12-bit ADC so getValue() matches 0–4095 scaling
-  pitchPot.setAnalogResolution(12);
-  volumePot.setAnalogResolution(12);
 }
 
 uint8_t num;
