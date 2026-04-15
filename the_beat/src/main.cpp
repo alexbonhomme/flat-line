@@ -37,8 +37,8 @@ void loop() {
   EcgSample sample = ecg.sampleIfDue(nowUs, leadOff);
   if (sample.updated) {
     bool beatDetected = beatDetector.update(leadOff, sample.filtered, sample.slope, nowMs);
-    ecg.updateDisplayWave(leadOff, sample.filtered, beatDetector.bpm(), beatDetected);
-    if (beatDetected) {
+    bool displayBeat = ecg.updateDisplayWave(leadOff, sample.filtered, beatDetector.bpm(), beatDetected);
+    if (displayBeat) {
       beeper.trigger(nowMs);
     }
 

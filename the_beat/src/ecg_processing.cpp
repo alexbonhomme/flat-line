@@ -36,18 +36,21 @@ EcgSample EcgProcessing::sampleIfDue(uint32_t nowUs, bool leadOff) {
   return sample;
 }
 
-void EcgProcessing::updateDisplayWave(bool leadOff, float filteredSignal, uint16_t bpm, bool beatDetected) {
+bool EcgProcessing::updateDisplayWave(bool leadOff, float filteredSignal, uint16_t bpm, bool beatDetected) {
+  displayBeatPulse_ = false;
   if (leadOff) {
     pushWaveSample(0.0f);
-    return;
+    return false;
   }
 
   float signal = syntheticEcgSample(bpm, beatDetected);
   (void)filteredSignal;
   pushWaveSample(signal);
+  return displayBeatPulse_;
 }
 
 float EcgProcessing::syntheticEcgSample(uint16_t bpm, bool beatDetected) {
+  constexpr float kRPhase = 0.245f;
   float targetBpm = static_cast<float>(bpm > 35 ? bpm : static_cast<uint16_t>(displayBpm_));
   targetBpm = constrain(targetBpm, 45.0f, 130.0f);
   // Smooth display tempo so noisy beat-to-beat variation does not change sweep speed abruptly.
@@ -61,8 +64,7 @@ float EcgProcessing::syntheticEcgSample(uint16_t bpm, bool beatDetected) {
   float phaseStep = 1.0f / samplesPerBeat;
 
   if (beatDetected) {
-    constexpr float desiredRPhase = 0.245f;
-    float phaseError = desiredRPhase - syntheticPhase_;
+    float phaseError = kRPhase - syntheticPhase_;
     if (phaseError > 0.5f) {
       phaseError -= 1.0f;
     } else if (phaseError < -0.5f) {
@@ -74,10 +76,14 @@ float EcgProcessing::syntheticEcgSample(uint16_t bpm, bool beatDetected) {
     syntheticPhase_ += correction;
   }
 
+  const float prevPhase = syntheticPhase_;
   syntheticPhase_ += phaseStep;
   if (syntheticPhase_ >= 1.0f) {
     syntheticPhase_ -= 1.0f;
   }
+  const bool wrapped = syntheticPhase_ < prevPhase;
+  displayBeatPulse_ = wrapped ? (prevPhase < kRPhase || syntheticPhase_ >= kRPhase)
+                              : (prevPhase < kRPhase && syntheticPhase_ >= kRPhase);
 
   const float p = syntheticPhase_;
   float y = 0.0f;
