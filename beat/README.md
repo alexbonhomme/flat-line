@@ -59,7 +59,7 @@ Example starter values:
 
 ## Build and upload
 
-From the `the_beat` folder:
+From the `beat` folder:
 
 ```bash
 pio run
@@ -78,7 +78,7 @@ You can adjust constants in `src/app_config.h`:
 Debug build flags in `platformio.ini`:
 
 - `DEBUG_FAKE_BPM`: force a fixed BPM for testing visuals/audio.
-- `DEBUG_USE_PWM_BEEPER`: `0` uses `SamplePlayer`, `1` uses `PwmBeeper`.
+- `DEBUG_USE_PWM_BEEPER`: uncomment in `platformio.ini` to use `PwmBeeper`; leave it commented to use `SamplePlayer`.
 
 ## Notes
 

@@ -1,6 +1,6 @@
 ## The Loop – RP2040 Dual‑Core WAV Player
 
-`the_loop` is a small RP2040-based audio project that plays a folder of `.wav` files from a microSD card through an I2S DAC. It uses both RP2040 cores: one core streams and decodes audio from the SD card, while the other core handles real‑time audio output and smooth, pot‑controlled pitch and volume.
+`loop` is a small RP2040-based audio project that plays a folder of `.wav` files from a microSD card through an I2S DAC. It uses both RP2040 cores: one core streams and decodes audio from the SD card, while the other core handles real‑time audio output and smooth, pot‑controlled pitch and volume.
 
 ### Features
 
@@ -47,7 +47,7 @@ For physical PCB compatibility details (especially if you had a custom board for
    - Via VS Code extension or `pip install platformio`.
 
 2. **Open the project**  
-   - In PlatformIO/VS Code, open the `the_loop` folder as a project.
+   - In PlatformIO/VS Code, open the `loop` folder as a project.
 
 3. **Libraries**  
    Dependencies are declared in `platformio.ini`:
@@ -63,12 +63,9 @@ For physical PCB compatibility details (especially if you had a custom board for
    - Connect the board via USB, put it in bootloader mode if necessary.  
    - Run **Build** then **Upload** from the PlatformIO sidebar or with:
 
-```ini
-; from platformio.ini
-[env:seeed_xiao_rp2040]
-platform = https://github.com/Seeed-Studio/platform-seeedboards.git
-board = seeed-xiao-rp2040
-framework = arduino
+```bash
+pio run
+pio run -t upload
 ```
 
 ### Preparing the SD Card
@@ -94,6 +91,6 @@ framework = arduino
 
 ### Debugging
 
-- Define `DEBUG` in `platformio.ini` `build_flags` to enable serial logging.  
+- Uncomment `-DDEBUG` in `platformio.ini` `build_flags` to enable serial logging.  
 - Serial output (115200 baud) will show SD initialization status and filenames as they are scanned.
 
