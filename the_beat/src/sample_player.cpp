@@ -13,8 +13,26 @@ void SamplePlayer::begin() {
                 static_cast<float>(Config::AUDIO_SAMPLE_HZ);
 }
 
-void SamplePlayer::trigger(uint32_t nowMs, uint32_t nowUs) {
-  (void)nowMs;
+void SamplePlayer::startPlayback(uint32_t nowUs) {
+  active_ = true;
+  startUs_ = nowUs;
+  lastAudioUs_ = startUs_;
+  zeroStartSamplesLeft_ = 0;
+  if (Config::SAMPLE_ATTACK_MS > 1.0f) {
+    // Force a short zero-output lead-in before reading sampleData.
+    // This avoids an initial edge when retriggering.
+    zeroStartSamplesLeft_ = static_cast<uint16_t>(Config::AUDIO_SAMPLE_HZ / 1000U);
+    if (zeroStartSamplesLeft_ == 0) {
+      zeroStartSamplesLeft_ = 1;
+    }
+  }
+  sourceIndex_ = 0.0f;
+  retriggerPending_ = false;
+  retriggerReleaseSamplesLeft_ = 0;
+  retriggerReleaseSamplesTotal_ = 0;
+}
+
+void SamplePlayer::trigger(uint32_t nowUs) {
   if (active_) {
     const float releaseMs = fmaxf(Config::SAMPLE_RETRIGGER_RELEASE_MS, 0.0f);
     uint16_t releaseSamples = static_cast<uint16_t>(
@@ -27,27 +45,10 @@ void SamplePlayer::trigger(uint32_t nowMs, uint32_t nowUs) {
     retriggerReleaseSamplesLeft_ = releaseSamples;
     return;
   }
-  active_ = true;
-  startUs_ = nowUs;
-  lastAudioUs_ = startUs_;
-  zeroStartSamplesLeft_ = 0;
-  if (Config::SAMPLE_ATTACK_MS > 1.0f) {
-    // Force a short zero-output lead-in before reading sampleData.
-    // This avoids an initial edge when retriggering.
-    zeroStartSamplesLeft_ =
-        static_cast<uint16_t>(Config::AUDIO_SAMPLE_HZ / 1000U);
-    if (zeroStartSamplesLeft_ == 0) {
-      zeroStartSamplesLeft_ = 1;
-    }
-  }
-  sourceIndex_ = 0.0f;
-  retriggerPending_ = false;
-  retriggerReleaseSamplesLeft_ = 0;
-  retriggerReleaseSamplesTotal_ = 0;
+  startPlayback(nowUs);
 }
 
-void SamplePlayer::service(uint32_t nowMs, uint32_t nowUs) {
-  (void)nowMs;
+void SamplePlayer::service(uint32_t nowUs) {
   const uint16_t pwmCenter = Config::PWM_RANGE / 2;
   if (nowUs - lastAudioUs_ < Config::AUDIO_SAMPLE_US) {
     return;
@@ -104,21 +105,7 @@ void SamplePlayer::service(uint32_t nowMs, uint32_t nowUs) {
       --retriggerReleaseSamplesLeft_;
     }
     if (retriggerReleaseSamplesLeft_ == 0) {
-      active_ = true;
-      startUs_ = nowUs;
-      lastAudioUs_ = nowUs;
-      zeroStartSamplesLeft_ = 0;
-      if (Config::SAMPLE_ATTACK_MS > 1.0f) {
-        zeroStartSamplesLeft_ =
-            static_cast<uint16_t>(Config::AUDIO_SAMPLE_HZ / 1000U);
-        if (zeroStartSamplesLeft_ == 0) {
-          zeroStartSamplesLeft_ = 1;
-        }
-      }
-      sourceIndex_ = 0.0f;
-      retriggerPending_ = false;
-      retriggerReleaseSamplesLeft_ = 0;
-      retriggerReleaseSamplesTotal_ = 0;
+      startPlayback(nowUs);
     }
   }
 }

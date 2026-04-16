@@ -23,15 +23,6 @@ uint8_t sampleInterpolated(const uint8_t* wave, uint16_t newest, float offset) {
   return static_cast<uint8_t>(y0 + (y1 - y0) * frac + 0.5f);
 }
 
-uint8_t sampleSmoothed(const uint8_t* wave, uint16_t newest, float offset, float compress) {
-  // Keep anti-aliasing mild so sharp QRS peaks remain visible at high compression.
-  const float delta = fminf(compress * 0.2f, 1.0f);
-  const uint16_t yA = sampleInterpolated(wave, newest, offset - delta);
-  const uint16_t yB = sampleInterpolated(wave, newest, offset);
-  const uint16_t yC = sampleInterpolated(wave, newest, offset + delta);
-  return static_cast<uint8_t>((yA + (2U * yB) + yC) / 4U);
-}
-
 void sampleBinMinMax(
     const uint8_t* wave,
     uint16_t newest,

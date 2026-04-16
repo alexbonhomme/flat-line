@@ -4,7 +4,6 @@ void EcgProcessing::begin() {
   for (uint16_t i = 0; i < Config::WAVE_BUFFER_SIZE; i++) {
     waveY_[i] = Config::GRAPH_TOP + Config::GRAPH_HEIGHT / 2;
   }
-  displayHalfRange_ = Config::DISPLAY_HALF_RANGE;
 }
 
 EcgSample EcgProcessing::sampleIfDue(uint32_t nowUs, bool leadOff) {
@@ -36,7 +35,7 @@ EcgSample EcgProcessing::sampleIfDue(uint32_t nowUs, bool leadOff) {
   return sample;
 }
 
-bool EcgProcessing::updateDisplayWave(bool leadOff, float filteredSignal, uint16_t bpm, bool beatDetected) {
+bool EcgProcessing::updateDisplayWave(bool leadOff, uint16_t bpm, bool beatDetected) {
   displayBeatPulse_ = false;
   if (leadOff) {
     pushWaveSample(0.0f);
@@ -44,7 +43,6 @@ bool EcgProcessing::updateDisplayWave(bool leadOff, float filteredSignal, uint16
   }
 
   float signal = syntheticEcgSample(bpm, beatDetected);
-  (void)filteredSignal;
   pushWaveSample(signal);
   return displayBeatPulse_;
 }

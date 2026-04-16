@@ -68,12 +68,17 @@ pio run -t upload
 
 ## Runtime tuning knobs
 
-You can adjust constants in `src/main.cpp`:
+You can adjust constants in `src/app_config.h`:
 
 - `ECG_SAMPLE_HZ`: ADC sampling rate
 - `HP_BASELINE_ALPHA`, `SIGNAL_SMOOTH_ALPHA`: filtering behavior
 - `MIN_PEAK_THRESHOLD`, `THRESHOLD_GAIN`, `MIN_RISE_SLOPE`, `REFRACTORY_MS`: beat detection sensitivity
 - `BEEP_FREQ_HZ`, `BEEP_DURATION_MS`, `BEEP_ATTACK_MS`, `BEEP_DECAY_MS`: beep timbre and shape
+
+Debug build flags in `platformio.ini`:
+
+- `DEBUG_FAKE_BPM`: force a fixed BPM for testing visuals/audio.
+- `DEBUG_USE_PWM_BEEPER`: `0` uses `SamplePlayer`, `1` uses `PwmBeeper`.
 
 ## Notes
 
@@ -82,7 +87,7 @@ You can adjust constants in `src/main.cpp`:
   - I2C wiring (`SDA`, `SCL`, GND, 3V3)
   - Power voltage (3.3V logic-safe module)
   - Module controller/address compatibility
-- If lead-off detection conflicts with your wiring, remap `LO_P_PIN` / `LO_N_PIN` in `src/main.cpp`.
+- If lead-off detection conflicts with your wiring, remap `LO_P_PIN` / `LO_N_PIN` in `src/app_config.h`.
 
 ## Troubleshooting
 

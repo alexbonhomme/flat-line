@@ -6,10 +6,12 @@
 class SamplePlayer {
 public:
   void begin();
-  void trigger(uint32_t nowMs, uint32_t nowUs);
-  void service(uint32_t nowMs, uint32_t nowUs);
+  void trigger(uint32_t nowUs);
+  void service(uint32_t nowUs);
 
 private:
+  void startPlayback(uint32_t nowUs);
+
   bool active_ = false;
   uint32_t startUs_ = 0;
   uint32_t lastAudioUs_ = 0;

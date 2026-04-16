@@ -1,11 +1,19 @@
 #include "beat_detector.h"
 #include "ecg_display.h"
 #include "ecg_processing.h"
+#if DEBUG_USE_PWM_BEEPER
+#include "pwm_beeper.h"
+#else
 #include "sample_player.h"
+#endif
 
 EcgProcessing ecg;
 BeatDetector beatDetector;
+#if DEBUG_USE_PWM_BEEPER
+PwmBeeper beeper;
+#else
 SamplePlayer beeper;
+#endif
 EcgDisplay ecgDisplay;
 
 uint32_t lastDebugMs = 0;
@@ -16,8 +24,36 @@ uint32_t lastFakeBeatMs = 0;
 volatile uint16_t latestBpm = 0;
 volatile bool latestBeatTriggered = false;
 
+bool effectiveLeadOff(bool leadOff) {
+#if DEBUG_FAKE_BPM
+  (void)leadOff;
+  return false;
+#else
+  return leadOff;
+#endif
+}
+
 bool leadsOff() {
   return digitalRead(Config::LO_P_PIN) == HIGH || digitalRead(Config::LO_N_PIN) == HIGH;
+}
+
+void triggerBeeper(uint32_t nowMs, uint32_t nowUs) {
+#if DEBUG_USE_PWM_BEEPER
+  (void)nowUs;
+  beeper.trigger(nowMs);
+#else
+  (void)nowMs;
+  beeper.trigger(nowUs);
+#endif
+}
+
+void serviceBeeper(uint32_t nowMs, uint32_t nowUs) {
+#if DEBUG_USE_PWM_BEEPER
+  beeper.service(nowMs, nowUs);
+#else
+  (void)nowMs;
+  beeper.service(nowUs);
+#endif
 }
 
 #if DEBUG_FAKE_BPM
@@ -51,21 +87,15 @@ void setup() {
 void loop() {
   const uint32_t nowUs = micros();
   const uint32_t nowMs = millis();
-  const bool leadOff = leadsOff();
-  const bool effectiveLeadOff =
-#if DEBUG_FAKE_BPM
-      false;
-#else
-      leadOff;
-#endif
+  const bool leadOff = effectiveLeadOff(leadsOff());
 
-  EcgSample sample = ecg.sampleIfDue(nowUs, effectiveLeadOff);
+  EcgSample sample = ecg.sampleIfDue(nowUs, leadOff);
   if (sample.updated) {
     bool beatDetected =
 #if DEBUG_FAKE_BPM
         debugBeatAtFixedRate(nowMs);
 #else
-        beatDetector.update(effectiveLeadOff, sample.filtered, sample.slope, nowMs);
+        beatDetector.update(leadOff, sample.filtered, sample.slope, nowMs);
 #endif
     uint16_t bpm =
 #if DEBUG_FAKE_BPM
@@ -77,9 +107,9 @@ void loop() {
     latestBeatTriggered = beatDetected;
     latestBpm = bpm;
 
-    bool displayBeat = ecg.updateDisplayWave(effectiveLeadOff, sample.filtered, bpm, beatDetected);
+    bool displayBeat = ecg.updateDisplayWave(leadOff, bpm, beatDetected);
     if (displayBeat) {
-      beeper.trigger(nowMs, nowUs);
+      triggerBeeper(nowMs, nowUs);
     }
 
 #if DEBUG
@@ -94,12 +124,12 @@ void loop() {
       Serial.print(" beat=");
       Serial.print(beatDetected ? 1 : 0);
       Serial.print(" leadOff=");
-      Serial.println(effectiveLeadOff ? 1 : 0);
+      Serial.println(leadOff ? 1 : 0);
     }
 #endif
   }
 
-  beeper.service(nowMs, nowUs);
+  serviceBeeper(nowMs, nowUs);
 }
 
 void setup1() {
@@ -108,18 +138,12 @@ void setup1() {
 
 void loop1() {
   const uint32_t nowMs = millis();
-  const bool leadOff = leadsOff();
-  const bool effectiveLeadOff =
-#if DEBUG_FAKE_BPM
-      false;
-#else
-      leadOff;
-#endif
+  const bool leadOff = effectiveLeadOff(leadsOff());
 
   if (nowMs - lastRenderMsCore1 >= Config::DISPLAY_REFRESH_MS) {
     lastRenderMsCore1 = nowMs;
     ecgDisplay.render(
-        effectiveLeadOff,
+        leadOff,
         latestBpm,
         latestBeatTriggered,
         ecg.waveform(),

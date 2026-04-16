@@ -7,7 +7,6 @@ class BeatDetector {
  public:
   bool update(bool leadOff, float signal, float slope, uint32_t nowMs);
   uint16_t bpm() const { return bpm_; }
-  bool lastBeatTriggered() const { return beatTriggered_; }
 
  private:
   void recordBpm(uint16_t bpmValue);
