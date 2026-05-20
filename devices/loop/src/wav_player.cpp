@@ -89,6 +89,7 @@ void WavPlayer::play(File file)
             playing_ = false;
         } // end load
       } // end playing
+
       i2s_.write((int32_t)0);
       i2s_.write((int32_t)0);
       i2s_.end();
@@ -150,7 +151,8 @@ void WavPlayer::process(float currentPitch, float volume)
   float ch0 = lastSample_.channel0 + frac * (currentSample_.channel0 - lastSample_.channel0);
   float ch1 = lastSample_.channel1 + frac * (currentSample_.channel1 - lastSample_.channel1);
 
-  // Output interpolated sample to I2S
-  i2s_.write((int32_t)(ch0 * volume - 32768));
-  i2s_.write((int32_t)(ch1 * volume - 32768));
+  // wavSample channels are unsigned 16-bit (silence == 32768).
+  // Re-center to signed before applying volume
+  i2s_.write((int32_t)((ch0 - 32768.0f) * volume));
+  i2s_.write((int32_t)((ch1 - 32768.0f) * volume));
 }
