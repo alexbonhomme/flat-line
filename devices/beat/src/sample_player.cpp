@@ -92,7 +92,7 @@ void SamplePlayer::service(uint32_t nowUs) {
   }
 
   const float sampleNorm = static_cast<float>(sampleData[index]) / 32768.0f;
-  const float output = sampleNorm * env;
+  const float output = sampleNorm * env * Config::AUDIO_VOLUME;
   const float pwm =
       (output * 0.5f + 0.5f) * static_cast<float>(Config::PWM_RANGE);
   analogWrite(Config::AUDIO_PWM_PIN,

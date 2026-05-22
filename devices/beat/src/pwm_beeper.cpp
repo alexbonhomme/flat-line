@@ -50,7 +50,7 @@ void PwmBeeper::service(uint32_t nowMs, uint32_t nowUs) {
     env *= fmaxf(0.0f, tailMs / Config::BEEP_RELEASE_MS);
   }
 
-  float sample = sinf(tonePhase_) * env;
+  float sample = sinf(tonePhase_) * env * Config::AUDIO_VOLUME;
   tonePhase_ += tonePhaseStep_ * static_cast<float>(elapsedUs);
   if (tonePhase_ >= Config::TWO_PI_F) {
     tonePhase_ = fmodf(tonePhase_, Config::TWO_PI_F);

@@ -38,12 +38,13 @@ constexpr uint32_t REFRACTORY_MS = 380;
 constexpr uint8_t BPM_HISTORY_SIZE = 6;
 
 // Audio
+constexpr float AUDIO_VOLUME = 0.14f;
 constexpr uint16_t AUDIO_SAMPLE_HZ = 8000;
 constexpr uint32_t AUDIO_SAMPLE_US = 1000000UL / AUDIO_SAMPLE_HZ;
 
 constexpr uint32_t SAMPLE_SOURCE_RATE_HZ = 44100;
-constexpr float SAMPLE_ATTACK_MS = 10.0f;
-constexpr float SAMPLE_RELEASE_MS = 250.0f;
+constexpr float SAMPLE_ATTACK_MS = 5.0f;
+constexpr float SAMPLE_RELEASE_MS = 150.0f;
 constexpr float SAMPLE_RETRIGGER_RELEASE_MS = 5.0f;
 
 constexpr float BEEP_FREQ_HZ = 1046.5f; // C6
@@ -52,7 +53,7 @@ constexpr float BEEP_ATTACK_MS = 5.0f;
 constexpr float BEEP_DECAY_MS = 50.0f;
 constexpr float BEEP_RELEASE_MS = 10.0f;
 
-constexpr uint16_t PWM_RANGE = 255;
+constexpr uint16_t PWM_RANGE = 2048;
 constexpr uint16_t PWM_FREQ_HZ = 62500;
 
 // Display layout
