@@ -1,13 +1,11 @@
 #include "wav_player.h"
+#include "control_updater.h"
 
 #define pBCLK 6  // QT Py Audio BFF default BITCLOCK
 #define pWS 7    // QT Py Audio BFF default LRCLOCK
 #define pDOUT A3 // QT Py Audio BFF default DATA
 
-// Control update function implemented in main.cpp (runs on core 0)
-extern void updateControls();
-
-WavPlayer::WavPlayer()
+WavPlayer::WavPlayer(ControlUpdater &controls)
     : playing_(false),
       load_(false),
       originalSampleRate_(0),
@@ -15,7 +13,8 @@ WavPlayer::WavPlayer()
       currentSample_{},
       sampleAccumulator_(0.0f),
       i2s_(OUTPUT),
-      player_(false, 16)
+      player_(false, 16),
+      controls_(controls)
 {
 }
 
@@ -79,7 +78,7 @@ void WavPlayer::play(File file)
       {
         // Core 0: handle control updates (pots) at low rate while core 1
         // handles the actual audio generation in loop1().
-        updateControls();
+        controls_.update();
 
         if (load_ || (status == WAV_LOAD))
         {
@@ -108,12 +107,15 @@ wavStatus WavPlayer::nextSample(wavSample *sample)
   return player_.nextSample(sample);
 }
 
-void WavPlayer::process(float currentPitch, float volume)
+void WavPlayer::process()
 {
   if (!playing_)
   {
     return;
   }
+
+  float currentPitch = controls_.pitch();
+  float volume = controls_.volume();
 
   // Accumulate pitch to determine when to read next sample
   // For pitch > 1.0: we read samples faster (advance more per output)

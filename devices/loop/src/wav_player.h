@@ -4,14 +4,16 @@
 #include <Adafruit_WavePlayer.h>
 #include <I2S.h>
 
+class ControlUpdater;
+
 class WavPlayer
 {
 public:
-  WavPlayer();
+  explicit WavPlayer(ControlUpdater &controls);
 
   void begin();
   void play(File file);
-  void process(float currentPitch, float volume);
+  void process();
   bool isPlaying() const;
 
 private:
@@ -26,4 +28,5 @@ private:
 
   I2S i2s_;
   Adafruit_WavePlayer player_;
+  ControlUpdater &controls_;
 };
