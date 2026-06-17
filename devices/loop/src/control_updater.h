@@ -14,10 +14,6 @@ public:
   float volume() const;
 
 private:
-  static constexpr uint8_t kPitchPotPin = A0;
-  static constexpr uint8_t kVolumePotPin = A1;
-  static constexpr float kAdcMax = 1023.0f;
-
   volatile float pitch_;
   volatile float volume_;
   float minPitch_;

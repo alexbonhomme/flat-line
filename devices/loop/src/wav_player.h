@@ -22,9 +22,9 @@ private:
   volatile bool playing_;
   volatile bool load_;
   volatile uint32_t originalSampleRate_;
-  wavSample lastSample_;
-  wavSample currentSample_;
-  volatile float sampleAccumulator_;
+  wavSample prevSample_;
+  wavSample nextSample_;
+  float sourceFrac_;
 
   I2S i2s_;
   Adafruit_WavePlayer player_;

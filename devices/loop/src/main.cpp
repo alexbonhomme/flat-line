@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include "app_config.h"
 #include "file_reader.h"
 #include "wav_player.h"
 #include "control_updater.h"
@@ -33,7 +34,7 @@ void loop() {
   while (fileReader.nextWav()) {
     File &file = fileReader.currentFile();
     wavPlayer.play(file);
-    delay(1000);
+    delay(Config::FILE_GAP_MS);
     fileReader.closeCurrent();
   }
 }

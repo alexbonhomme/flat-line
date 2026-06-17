@@ -1,32 +1,42 @@
 #include "wav_player.h"
+#include "app_config.h"
 #include "control_updater.h"
 
-#define pBCLK 6  // QT Py Audio BFF default BITCLOCK
-#define pWS 7    // QT Py Audio BFF default LRCLOCK
-#define pDOUT A3 // QT Py Audio BFF default DATA
+namespace
+{
+float toSigned(uint16_t sample)
+{
+  return static_cast<float>(sample) - Config::SILENCE_OFFSET;
+}
+
+float lerpSigned(uint16_t a, uint16_t b, float t)
+{
+  const float signedA = toSigned(a);
+  return signedA + t * (toSigned(b) - signedA);
+}
+} // namespace
 
 WavPlayer::WavPlayer(ControlUpdater &controls)
     : playing_(false),
       load_(false),
       originalSampleRate_(0),
-      lastSample_{},
-      currentSample_{},
-      sampleAccumulator_(0.0f),
+      prevSample_{},
+      nextSample_{},
+      sourceFrac_(0.0f),
       i2s_(OUTPUT),
-      player_(false, 16),
+      player_(false, Config::AUDIO_BITS_PER_SAMPLE),
       controls_(controls)
 {
 }
 
 void WavPlayer::begin()
 {
-  // Configure I2S, enable audio amp
-  i2s_.setDATA(pDOUT);
-  i2s_.setBCLK(pBCLK);
-  i2s_.setBitsPerSample(16);
+  i2s_.setDATA(Config::I2S_DATA_PIN);
+  i2s_.setBCLK(Config::I2S_BCLK_PIN);
+  i2s_.setBitsPerSample(Config::AUDIO_BITS_PER_SAMPLE);
 
-  pinMode(pWS, OUTPUT);
-  digitalWrite(pWS, LOW);
+  pinMode(Config::I2S_WS_PIN, OUTPUT);
+  digitalWrite(Config::I2S_WS_PIN, LOW);
 }
 
 bool WavPlayer::isPlaying() const
@@ -34,41 +44,36 @@ bool WavPlayer::isPlaying() const
   return playing_;
 }
 
-// Play WAV file (already opened above). Runs on core 0.
 void WavPlayer::play(File file)
 {
   uint32_t rate;
   wavStatus status = player_.start(file, &rate);
   if ((status == WAV_OK) || (status == WAV_LOAD))
   {
-    // Store original sample rate (make it accessible to core 1)
     noInterrupts();
     originalSampleRate_ = rate;
-    sampleAccumulator_ = 0.0f;
+    sourceFrac_ = 0.0f;
     interrupts();
 
-    // Initialize I2S at original sample rate (never change it - use software pitch shifting)
     if (i2s_.begin(rate))
     {
-      // Initialize sample buffer - read first two samples for interpolation
-      wavSample initSample1, initSample2;
-      if (player_.nextSample(&initSample1) == WAV_OK)
+      wavSample initSample{};
+      if (player_.nextSample(&initSample) == WAV_OK)
       {
         noInterrupts();
-        lastSample_ = initSample1;
+        prevSample_ = initSample;
         interrupts();
-        // Try to read second sample
-        if (player_.nextSample(&initSample2) == WAV_OK)
+
+        if (player_.nextSample(&initSample) == WAV_OK)
         {
           noInterrupts();
-          currentSample_ = initSample2;
+          nextSample_ = initSample;
           interrupts();
         }
         else
         {
-          // Only one sample available, use same for both
           noInterrupts();
-          currentSample_ = initSample1;
+          nextSample_ = prevSample_;
           interrupts();
         }
       }
@@ -76,8 +81,6 @@ void WavPlayer::play(File file)
       playing_ = load_ = true;
       while (playing_)
       {
-        // Core 0: handle control updates (pots) at low rate while core 1
-        // handles the actual audio generation in loop1().
         controls_.update();
 
         if (load_ || (status == WAV_LOAD))
@@ -86,8 +89,8 @@ void WavPlayer::play(File file)
           status = player_.read();
           if (status == WAV_ERR_READ)
             playing_ = false;
-        } // end load
-      } // end playing
+        }
+      }
 
       i2s_.write((int32_t)0);
       i2s_.write((int32_t)0);
@@ -114,47 +117,36 @@ void WavPlayer::process()
     return;
   }
 
-  float currentPitch = controls_.pitch();
-  float volume = controls_.volume();
+  const float pitch = controls_.pitch();
+  const float volume = controls_.volume();
 
-  // Accumulate pitch to determine when to read next sample
-  // For pitch > 1.0: we read samples faster (advance more per output)
-  // For pitch < 1.0: we read samples slower (advance less per output)
-  sampleAccumulator_ += currentPitch;
+  // Interpolate first, then advance — matches the_loop's pos-based resampler.
+  const float ch0 = lerpSigned(prevSample_.channel0, nextSample_.channel0, sourceFrac_);
+  const float ch1 = lerpSigned(prevSample_.channel1, nextSample_.channel1, sourceFrac_);
 
-  // When accumulator >= 1.0, we need to read a new sample
-  while (sampleAccumulator_ >= 1.0f)
+  i2s_.write((int32_t)(ch0 * volume));
+  i2s_.write((int32_t)(ch1 * volume));
+
+  sourceFrac_ += pitch;
+  while (sourceFrac_ >= 1.0f)
   {
-    // Read one sample from player
-    wavStatus status = nextSample(&currentSample_);
+    prevSample_ = nextSample_;
+    const wavStatus status = nextSample(&nextSample_);
     if (status == WAV_LOAD)
     {
       load_ = true;
-      sampleAccumulator_ -= 1.0f;
-      break; // Let core 0 handle loading
+      sourceFrac_ -= 1.0f;
+      break;
     }
     else if (status == WAV_EOF || status == WAV_ERR_READ)
     {
       playing_ = load_ = false;
-      sampleAccumulator_ = 0.0f;
+      sourceFrac_ = 0.0f;
       break;
     }
     else if (status == WAV_OK)
     {
-      // Store previous sample for interpolation
-      lastSample_ = currentSample_;
-      sampleAccumulator_ -= 1.0f;
+      sourceFrac_ -= 1.0f;
     }
   }
-
-  // Calculate interpolated sample based on fractional position
-  // When sampleAccumulator is between 0 and 1, interpolate between lastSample and currentSample
-  float frac = sampleAccumulator_;
-  float ch0 = lastSample_.channel0 + frac * (currentSample_.channel0 - lastSample_.channel0);
-  float ch1 = lastSample_.channel1 + frac * (currentSample_.channel1 - lastSample_.channel1);
-
-  // wavSample channels are unsigned 16-bit (silence == 32768).
-  // Re-center to signed before applying volume
-  i2s_.write((int32_t)((ch0 - 32768.0f) * volume));
-  i2s_.write((int32_t)((ch1 - 32768.0f) * volume));
 }

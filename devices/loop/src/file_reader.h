@@ -1,5 +1,6 @@
 #pragma once
 
+#include "app_config.h"
 #include "SdFat.h"
 
 #if defined(ARDUINO_ARCH_RP2040)

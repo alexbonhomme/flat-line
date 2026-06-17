@@ -1,11 +1,9 @@
+#include "app_config.h"
 #include "file_reader.h"
 
-// #define SD_CS_PIN 0
-#define SD_CS_PIN A2
-
-#define SD_FAT_TYPE 3
-#define SPI_CLOCK SD_SCK_MHZ(50)
-#define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI, SPI_CLOCK)
+#define SD_CONFIG                                                            \
+  SdSpiConfig(Config::SD_CS_PIN, DEDICATED_SPI,                            \
+              SD_SCK_MHZ(Config::SD_SPI_CLOCK_MHZ))
 
 FileReader::FileReader() : dirOpen_(false), initialized_(false) {}
 
