@@ -38,7 +38,7 @@ constexpr uint32_t REFRACTORY_MS = 380;
 constexpr uint8_t BPM_HISTORY_SIZE = 6;
 
 // Audio
-constexpr float AUDIO_VOLUME = 0.14f;
+constexpr float AUDIO_VOLUME = 1.0f;
 constexpr uint16_t AUDIO_SAMPLE_HZ = 8000;
 constexpr uint32_t AUDIO_SAMPLE_US = 1000000UL / AUDIO_SAMPLE_HZ;
 
