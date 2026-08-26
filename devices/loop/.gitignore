@@ -4,6 +4,6 @@
 .vscode/launch.json
 .vscode/ipch
 
-hardware/**/*.lck
-hardware/**/.history
-hardware/**/_ARCHIVE
+hardware/*.lck
+hardware/*.history
+hardware/_ARCHIVE
