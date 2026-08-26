@@ -265,7 +265,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "egc.kicad_pro",
+    "filename": "beat.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -432,8 +432,8 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "egc.kicad_sch",
-        "name": "egc",
+        "filename": "beat.kicad_sch",
+        "name": "beat",
         "uuid": "f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
       }
     ],
@@ -443,7 +443,7 @@
   "sheets": [
     [
       "f4644fd0-e1de-4c6e-a6f1-9c8b13899751",
-      "egc"
+      "beat"
     ]
   ],
   "text_variables": {},

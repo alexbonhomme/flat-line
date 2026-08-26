@@ -4,6 +4,9 @@
 	(generator_version "10.0")
 	(uuid "f4644fd0-e1de-4c6e-a6f1-9c8b13899751")
 	(paper "A4")
+	(title_block
+		(date "2026-08-26")
+	)
 	(lib_symbols
 		(symbol "Connector_Audio:AudioJack2"
 			(exclude_from_sim no)
@@ -1814,11 +1817,11 @@
 		(uuid "4e7cf1f2-65e3-4e87-a82f-60890f3844e7")
 	)
 	(no_connect
-		(at 92.71 63.5)
+		(at 92.71 60.96)
 		(uuid "661a2ba3-8e8a-474b-b8fd-958b0522429e")
 	)
 	(no_connect
-		(at 92.71 66.04)
+		(at 92.71 63.5)
 		(uuid "8224d890-5790-4a14-a2fc-ce18236823c6")
 	)
 	(no_connect
@@ -1838,7 +1841,7 @@
 		(uuid "c7f99e9c-893c-4731-b0e7-f7030c100152")
 	)
 	(no_connect
-		(at 92.71 68.58)
+		(at 92.71 66.04)
 		(uuid "c873f5d6-1fbe-4354-92e1-b402ce9a2c68")
 	)
 	(no_connect
@@ -2087,7 +2090,7 @@
 	)
 	(global_label "3V3"
 		(shape input)
-		(at 82.55 58.42 90)
+		(at 82.55 55.88 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2097,7 +2100,7 @@
 		)
 		(uuid "034d3cd1-9fd3-43d5-9a0c-095362c7d740")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 82.55 51.9272 90)
+			(at 82.55 49.3872 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2159,7 +2162,7 @@
 	)
 	(global_label "SCL"
 		(shape input)
-		(at 92.71 73.66 0)
+		(at 92.71 71.12 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2169,7 +2172,7 @@
 		)
 		(uuid "149ff63d-de7c-49c7-b11f-dd8e3648f04a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 99.2028 73.66 0)
+			(at 99.2028 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2255,7 +2258,7 @@
 	)
 	(global_label "SDA"
 		(shape input)
-		(at 92.71 71.12 0)
+		(at 92.71 68.58 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2265,7 +2268,7 @@
 		)
 		(uuid "862938dc-12c6-4d6f-ab37-332e115d355b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 99.2633 71.12 0)
+			(at 99.2633 68.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2591,7 +2594,7 @@
 			(uuid "8cfc8467-c236-4375-9400-def9294e0d37")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "D1")
 					(unit 1)
@@ -2601,7 +2604,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 82.55 78.74 0)
+		(at 82.55 76.2 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2611,7 +2614,7 @@
 		(dnp no)
 		(uuid "14d1a491-123c-4f28-98bb-69ef36de7bb2")
 		(property "Reference" "#PWR03"
-			(at 82.55 85.09 0)
+			(at 82.55 82.55 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2622,7 +2625,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 82.55 82.804 0)
+			(at 82.55 80.264 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2632,7 +2635,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 82.55 78.74 0)
+			(at 82.55 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2643,7 +2646,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 82.55 78.74 0)
+			(at 82.55 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2654,7 +2657,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 82.55 78.74 0)
+			(at 82.55 76.2 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2668,7 +2671,7 @@
 			(uuid "c8417816-e8dd-4530-98d7-7affca4d4e4c")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "#PWR03")
 					(unit 1)
@@ -2678,7 +2681,7 @@
 	)
 	(symbol
 		(lib_id "electronic_synapse:SH1106")
-		(at 82.55 67.31 0)
+		(at 82.55 64.77 0)
 		(mirror y)
 		(unit 1)
 		(body_style 1)
@@ -2689,7 +2692,7 @@
 		(dnp no)
 		(uuid "15f6e1fb-70ed-468e-9865-e958e2bbada6")
 		(property "Reference" "U2"
-			(at 69.088 67.056 0)
+			(at 69.088 64.516 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2700,7 +2703,7 @@
 			)
 		)
 		(property "Value" "SH1107"
-			(at 66.802 69.596 0)
+			(at 66.802 67.056 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2711,7 +2714,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 82.55 67.31 0)
+			(at 82.55 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2722,7 +2725,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 82.55 67.31 0)
+			(at 82.55 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2733,7 +2736,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 82.55 67.31 0)
+			(at 82.55 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2765,7 +2768,7 @@
 			(uuid "10ea5687-9908-49df-b2de-5f3247e5ae39")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "U2")
 					(unit 1)
@@ -2847,7 +2850,7 @@
 			(uuid "af8e0e8c-ff71-4dc1-848e-2cb6c7686236")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "D2")
 					(unit 1)
@@ -2929,7 +2932,7 @@
 			(uuid "36a7ab9f-2b8c-4563-bcba-b2be40a4f87e")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "R2")
 					(unit 1)
@@ -3011,7 +3014,7 @@
 			(uuid "2f94c5c2-f564-41ac-a763-8725bcfd8a82")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "R3")
 					(unit 1)
@@ -3127,7 +3130,7 @@
 			(uuid "4c587943-ba32-4968-9833-ee4b6378cbb0")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "U1")
 					(unit 1)
@@ -3205,7 +3208,7 @@
 			(uuid "137dd703-1efd-433d-88a7-4d1208839f9f")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "#PWR04")
 					(unit 1)
@@ -3305,7 +3308,7 @@
 			(uuid "27e0ced3-7ecf-4c0b-83cb-7721c8d85802")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "A1")
 					(unit 1)
@@ -3383,7 +3386,7 @@
 			(uuid "d4007cb4-6a47-47da-b173-92b90adf6246")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "#PWR06")
 					(unit 1)
@@ -3461,7 +3464,7 @@
 			(uuid "a6ef494e-70ee-4e17-ad09-0822c94bbe7f")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "#PWR05")
 					(unit 1)
@@ -3555,7 +3558,7 @@
 			(uuid "87d322d8-700c-4f74-b413-d41350a004ec")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "U3")
 					(unit 1)
@@ -3634,7 +3637,7 @@
 			(uuid "4b4149fd-0682-474b-8ff8-78dd9763a30c")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "C1")
 					(unit 1)
@@ -3713,7 +3716,7 @@
 			(uuid "e95f68af-11b6-4aec-b7cb-314cbc952380")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "R1")
 					(unit 1)
@@ -3794,7 +3797,7 @@
 			(uuid "72160c0a-b5f0-47c5-8e9e-b327df821ca2")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "C2")
 					(unit 1)
@@ -3873,7 +3876,7 @@
 			(uuid "bf5a639a-b7b2-4d87-a8e6-9667d6e3d58d")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "J2")
 					(unit 1)
@@ -3950,7 +3953,7 @@
 			(uuid "ecda63a3-1e7a-4343-81a0-abde56c6c736")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "#PWR02")
 					(unit 1)
@@ -4028,7 +4031,7 @@
 			(uuid "543251c2-5e9c-42c3-a5c6-17d3643548c5")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "#PWR01")
 					(unit 1)
@@ -4106,7 +4109,7 @@
 			(uuid "91f66222-1c59-4f58-aea8-0472c82fac69")
 		)
 		(instances
-			(project "egc"
+			(project "beat"
 				(path "/f4644fd0-e1de-4c6e-a6f1-9c8b13899751"
 					(reference "#PWR07")
 					(unit 1)
