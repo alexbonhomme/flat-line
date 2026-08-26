@@ -1,35 +1,31 @@
 # Flat Line
 
-Flat Line is an art research project around sound and texture, initiated by Marine Penhouet with the assistance of Alexandre Bonhomme.
+Art research project around sound and texture, by Marine Penhouet with Alexandre Bonhomme.
 
-## Repository Architecture
+## Devices
 
-- `devices/beat/`
-  - AD8232 ECG monitor prototype for XIAO RP2040.
-  - Displays waveform on SH1116 OLED and generates beat-synced audio.
-  - Contains firmware (`src/`, `include/`, `platformio.ini`) and hardware design files (`hardware/`).
-- `devices/loop/`
-  - Dual-core WAV player for RP2040 with SD card + I2S output.
-  - Includes pitch/volume control pipeline and board migration notes.
-  - Contains firmware (`src/`, `platformio.ini`) and hardware docs/assets (`hardware/`, compatibility notes).
-- `devices/tape/`
-  - Work in progress.
-- `devices/harddrive/`
-  - Work in progress.
-- `_archives/`
-  - Legacy prototype sketches and older standalone experiments kept for reference.
-- `wav_converter.py`
-  - Utility script used to prepare audio assets for embedded playback workflows.
+Each device is a self-contained PlatformIO firmware project with KiCad hardware in `hardware/`.
 
-## Project Conventions
+- [`devices/beat/`](devices/beat/) — AD8232 ECG on XIAO RP2040. Dual-core: sampling + beat detection on core 0, SH1107 OLED on core 1. Beat-synced audio via PWM to a filtered mono jack. Custom PCB with Lipo Rider Plus power. *Not a medical device.*
+- [`devices/loop/`](devices/loop/) — Dual-core WAV player. Core 0 reads 16-bit stereo WAV from SD; core 1 streams I2S with pot-controlled pitch (0.1×–3×) and volume. MAX98357A amp, LiPo power. See `POWER_BUDGET.md` for runtime estimates.
+- [`devices/tape/`](devices/tape/) — Work in progress.
+- [`devices/harddrive/`](devices/harddrive/) — Work in progress.
 
-- Each active firmware project keeps its own `README.md` and `platformio.ini`.
-- Firmware code lives inside each device folder (`devices/<name>/src`).
-- Hardware design assets live under each device's `hardware/` folder.
+## Conventions
 
-## Quick Audio Conversion
+- Firmware: `devices/<name>/src/`, config in `app_config.h`, build via `platformio.ini` (`seeed_xiao_rp2040`).
+- Hardware: KiCad schematic and PCB under `devices/<name>/hardware/`.
+- Per-device docs: `devices/<name>/README.md`.
 
-Convert a WAV/MP3 file into a 16-bit 44.1 kHz RAW file:
+## Archives
+
+- [`_archives/`](_archives/) — Legacy prototypes (e.g. original `the_loop` Arduino sketch).
+
+## Audio assets
+
+`wav_converter.py` — prepare WAV/MP3 for embedded playback (e.g. beat sample in `include/blackhole.h`).
+
+Quick ffmpeg one-liner for 16-bit mono 44.1 kHz raw:
 
 ```bash
 ffmpeg -i input.wav -ac 1 -ar 44100 -f s16le -acodec pcm_s16le output.raw
