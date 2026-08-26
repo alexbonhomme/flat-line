@@ -11,7 +11,7 @@ RP2040 firmware that plays `.wav` files from a microSD card over I2S. Core 0 dec
 
 ### Hardware
 
-Targets **Seeed XIAO RP2040** + microSD on SPI + I2S amp (see `hardware/` for custom PCB).
+Targets **Seeed XIAO RP2040** + microSD on SPI + I2S amp (see `hardware/` for schematic).
 
 | Signal | Pin |
 |--------|-----|
@@ -32,7 +32,7 @@ Power: LiPo + TP4056 + hardware switch. See `POWER_BUDGET.md` for runtime estima
 - `src/control_updater.{h,cpp}` — smoothed pot reads
 - `src/app_config.h` — pins and constants
 - `platformio.ini` — build env and deps
-- `hardware/` — KiCad schematic and PCB
+- `hardware/` — KiCad schematic
 - `POWER_BUDGET.md` — battery runtime model
 
 ### Build
