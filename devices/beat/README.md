@@ -1,110 +1,84 @@
-# AD8232 ECG + SH1116 + PWM Beat Prototype
+# AD8232 ECG + SH1107 + PWM Beat Prototype
 
-This project reads ECG data from an AD8232 module using a Seeed XIAO RP2040, shows a scrolling waveform on an SH1116 I2C OLED, and plays a heartbeat-synced beep using PWM output.
+ECG from AD8232 on Seeed XIAO RP2040, scrolling waveform on SH1107 I2C OLED, heartbeat-synced audio on PWM. Core 0 samples and detects beats; core 1 renders the display.
 
-This is a prototype for experimentation only. It is not a medical device and must not be used for diagnosis or treatment.
+**Not a medical device** — experimentation only.
 
 ## Features
 
-- 12-bit ECG sampling from AD8232 (`A0`)
-- Real-time scrolling waveform display on SH1116-compatible 128x64 OLED
-- Basic beat detection (R-peak style) with refractory period
-- Rolling BPM estimate
-- Non-blocking PWM beep envelope on each detected beat
+- 12-bit ECG sampling (`A0`, 500 Hz)
+- Scrolling waveform + BPM on SH1107 128×64 I2C OLED
+- R-peak detection with refractory period and rolling BPM
+- Beat-triggered audio: embedded sample by default (`SamplePlayer`), optional sine PWM (`PwmBeeper`)
 
 ## Hardware
 
-- Seeed XIAO RP2040
-- AD8232 ECG module with electrode leads
-- SH1116 I2C 128x64 OLED (SH1106 command-compatible modules also work)
-- Passive buzzer / small amp input for audio
-- Optional RC filter on PWM output
+Schematic in `hardware/beat.kicad_sch` (see `beat.pdf`).
 
-## Wiring
+| Part | Value |
+|------|-------|
+| MCU | Seeed XIAO RP2040 |
+| ECG | SparkFun AD8232 |
+| Display | SH1107 128×64 I2C OLED (RST/CS/DC NC — SH1106-compatible driver) |
+| Power | Seeed Lipo Rider Plus |
+| Audio out | Mono jack (J2), PWM through onboard filter |
 
-### AD8232 to XIAO RP2040
+### XIAO connections
 
-| AD8232 | XIAO RP2040 |
-|---|---|
-| 3.3V | 3V3 |
-| GND | GND |
-| OUTPUT | A0 |
+| Signal | Pin |
+|--------|-----|
+| ECG data | A0 |
 | LO+ | D2 |
-| LO- | D3 |
+| LO− | D3 |
+| I2C SDA / SCL | SDA / SCL |
+| Audio PWM | D10 |
 
-### SH1116 OLED (I2C) to XIAO RP2040
+Power: LiPo → Lipo Rider Plus → 5 V to XIAO, 3.3 V to AD8232 and display.
 
-Use your board's hardware I2C pins:
+Audio path: D10 → 1 kΩ + 220 nF low-pass (+ BAT43 clamp) → J2.
 
-| OLED | XIAO RP2040 |
-|---|---|
-| VCC | 3V3 |
-| GND | GND |
-| SDA | SDA |
-| SCL | SCL |
+For breadboard bring-up, wire the AD8232 breakout and OLED to the same pins.
 
-### PWM audio output
+## Layout
 
-| Signal | XIAO RP2040 |
-|---|---|
-| PWM out | D10 |
-| GND | GND |
+- `src/main.cpp` — dual-core loop, beat trigger
+- `src/ecg_processing.{h,cpp}` — ADC sampling and filtering
+- `src/beat_detector.{h,cpp}` — R-peak detection, BPM
+- `src/ecg_display.{h,cpp}` — SH1106 driver, waveform render
+- `src/sample_player.{h,cpp}` — embedded WAV playback (default)
+- `src/pwm_beeper.{h,cpp}` — sine PWM beep (optional)
+- `src/app_config.h` — pins and tuning constants
+- `include/blackhole.h` — embedded beat sample
+- `hardware/` — KiCad schematic
+- `platformio.ini` — build env and deps
 
-For cleaner analog audio, use a simple RC low-pass filter on `D10` before the amplifier input.
-
-Example starter values:
-
-- `R = 2.2k ohm`
-- `C = 10nF` to GND
-
-## Build and upload
-
-From the `beat` folder:
+## Build
 
 ```bash
 pio run
 pio run -t upload
 ```
 
-## Runtime tuning knobs
+Environment: `seeed_xiao_rp2040`. Uncomment `-DDEBUG` in `platformio.ini` for serial logging (115200 baud).
 
-You can adjust constants in `src/app_config.h`:
+### Tuning (`src/app_config.h`)
 
-- `ECG_SAMPLE_HZ`: ADC sampling rate
-- `HP_BASELINE_ALPHA`, `SIGNAL_SMOOTH_ALPHA`: filtering behavior
-- `MIN_PEAK_THRESHOLD`, `THRESHOLD_GAIN`, `MIN_RISE_SLOPE`, `REFRACTORY_MS`: beat detection sensitivity
-- `BEEP_FREQ_HZ`, `BEEP_DURATION_MS`, `BEEP_ATTACK_MS`, `BEEP_DECAY_MS`: beep timbre and shape
+- **ECG**: `ECG_SAMPLE_HZ`, `HP_BASELINE_ALPHA`, `SIGNAL_SMOOTH_ALPHA`
+- **Detection**: `MIN_PEAK_THRESHOLD`, `THRESHOLD_GAIN`, `MIN_RISE_SLOPE`, `REFRACTORY_MS`
+- **PWM beep**: `BEEP_FREQ_HZ`, `BEEP_DURATION_MS`, `BEEP_ATTACK_MS`, `BEEP_DECAY_MS`
+- **Sample playback**: `SAMPLE_ATTACK_MS`, `SAMPLE_RELEASE_MS`, `SAMPLE_RETRIGGER_RELEASE_MS`
 
-Debug build flags in `platformio.ini`:
+### Debug flags (`platformio.ini`)
 
-- `DEBUG_FAKE_BPM`: force a fixed BPM for testing visuals/audio.
-- `DEBUG_USE_PWM_BEEPER`: uncomment in `platformio.ini` to use `PwmBeeper`; leave it commented to use `SamplePlayer`.
-
-## Notes
-
-- Display driver used is `U8G2_SH1106_128X64_NONAME_F_HW_I2C`, which matches many SH1116 modules in practice.
-- If your display does not show anything, check:
-  - I2C wiring (`SDA`, `SCL`, GND, 3V3)
-  - Power voltage (3.3V logic-safe module)
-  - Module controller/address compatibility
-- If lead-off detection conflicts with your wiring, remap `LO_P_PIN` / `LO_N_PIN` in `src/app_config.h`.
+- `-DDEBUG_FAKE_BPM=80` — fixed BPM, skips real detection
+- `-DDEBUG_USE_PWM_BEEPER` — use `PwmBeeper` instead of `SamplePlayer`
 
 ## Troubleshooting
 
-- **Noisy waveform**
-  - Keep still and minimize cable movement.
-  - Place electrodes as close to recommended positions as possible.
-  - Use fresh electrode pads.
-- **Flat line or unstable signal**
-  - Check electrode contact and AD8232 wiring.
-  - Verify `LO+`/`LO-` are connected and not permanently reporting leads off.
-- **BPM seems incorrect**
-  - Reduce motion artifacts.
-  - Adjust detection constants (`MIN_PEAK_THRESHOLD`, `THRESHOLD_GAIN`, `MIN_RISE_SLOPE`).
-- **No audio**
-  - Confirm output on `D10`.
-  - Verify buzzer/amp wiring and ground.
-  - For line-level listening, ensure RC filter and amplifier are connected correctly.
+- **No display** — check I2C wiring and 3.3 V power. Driver: `U8G2_SH1106_128X64_NONAME_F_HW_I2C` (works with SH1107).
+- **Flat/noisy ECG** — electrode contact, cable motion, LO+/LO− wiring. Remap `LO_P_PIN`/`LO_N_PIN` in `app_config.h` if needed.
+- **Wrong BPM** — reduce motion; tune `MIN_PEAK_THRESHOLD`, `THRESHOLD_GAIN`, `MIN_RISE_SLOPE`.
+- **No audio** — verify D10 and J2 wiring; plug into filtered jack output on the PCB.
 
 ## Reference
 
